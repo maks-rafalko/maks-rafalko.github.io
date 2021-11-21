@@ -3,7 +3,7 @@
     <title>Maks Rafalko</title>
     <link href="https://maks-rafalko.github.io/blog" />
     <link type="application/atom+xml" rel="self" href="https://maks-rafalko.github.io/blog/feed.atom" />
-    <updated>2021-11-21T20:47:23+00:00</updated>
+    <updated>2021-11-21T21:03:49+00:00</updated>
     <id>https://maks-rafalko.github.io/blog/feed.atom</id>
     <author>
         <name>Maks Rafalko</name>
@@ -189,7 +189,7 @@ throw new ConflictHttpException('There is a conflict between X and Y');
 
 <p>Using <code>APP_DEBUG=false</code> with functional tests is a <em>right way</em> from errors/exceptions points of view and this mimics a real production environment.</p>
 
-<p>Again, to save developers' time, let's try to change API-Platform distribution and add this behavior by default: <a href="https://github.com/api-platform/api-platform/pull/2078">api-platform/api-platform#2078</a></p>
+<p>Again, to save developers' time, let's try to change API-Platform distribution and Symfony's <code>phpunit-bridge</code> recipe and add this behavior by default: <a href="https://github.com/api-platform/api-platform/pull/2078">api-platform/api-platform#2078</a>, <a href="https://github.com/symfony/recipes/issues/1025">symfony/recipes#1025</a></p>
 
 <p><a name="completely-disable-xdebug"></a></p>
 

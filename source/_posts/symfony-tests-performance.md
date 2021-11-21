@@ -167,7 +167,7 @@ asserting in tests that response contains exactly this exception message `There 
 
 Using `APP_DEBUG=false` with functional tests is a *right way* from errors/exceptions points of view and this mimics a real production environment.
 
-Again, to save developers' time, let's try to change API-Platform distribution and add this behavior by default: [api-platform/api-platform#2078](https://github.com/api-platform/api-platform/pull/2078) 
+Again, to save developers' time, let's try to change API-Platform distribution and Symfony's `phpunit-bridge` recipe and add this behavior by default: [api-platform/api-platform#2078](https://github.com/api-platform/api-platform/pull/2078), [symfony/recipes#1025](https://github.com/symfony/recipes/issues/1025)
 
 <a name="completely-disable-xdebug"></a>
 ## Completely disable Xdebug
