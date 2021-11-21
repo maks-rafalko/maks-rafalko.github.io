@@ -330,7 +330,7 @@ As always, results depend on your project, but [here is an example](https://loca
 
 Functional tests are very powerful, as they not just test independent _unit_ of code, but test how things work together. For example, if you are testing API endpoints, you can test the whole flow of your application: from `Request` to `Response`. 
 
-However, testing every single condition and line of code only by functional tests is expensive, as it requires too many of slow tests.
+However, testing every single condition and line of code only by functional tests is expensive, as it requires too many slow tests.
 
 Imagine, we have an API endpoint for getting Order details: `GET /orders/{id}`. And the following business rules should apply:
 
@@ -338,7 +338,7 @@ Imagine, we have an API endpoint for getting Order details: `GET /orders/{id}`. 
 * `Manager` **can** view Order details
 * `User` who placed this Order **can** view Order details
 * `User` who was given shared access but not placed this Order **can** view Order details
-* Any other `User` **can not** view Order details
+* Any other authenticated `User` **can not** view Order details
 * Not authenticated `User` **can not** view Order details
 
 API endpoint is protected by Security check: 
