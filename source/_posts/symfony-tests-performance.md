@@ -44,14 +44,14 @@ Instead of using mentioned hashing algorithms, we can use `md5` for `test` envir
 # config/packages/security.yaml for dev & prod env
 security:
     password_hashers:
-      App\Entity\User\User:
+      App\Entity\User:
         algorithm: argon2i
 
 
 # override in config/packages/test/security.yaml for test env
 security:
     password_hashers:
-        App\Entity\User\User:
+        App\Entity\User:
             algorithm: md5
             encode_as_base64: false
             iterations: 0
@@ -62,7 +62,7 @@ Let's run `phpunit` again and check the results:
 ```bash
 vendor/bin/phpunit
 
-...
+# ...
 
 Time: 05:32.496, Memory: 551.00 MB
 ```
@@ -74,7 +74,7 @@ What an improvement!
 + Time: 05:32.496, Memory: 551.00 MB
 ```
 
-It is 2.25x faster than it was before just by changing hashing function. This is one of the most valuable performance optimization that can be done in minutes, and, to be honest, I don't know why it isn't forced by big players like API-Platform or Symfony itself in their distributions. Let's try to change that and help other developers to now waste time: https://github.com/api-platform/docs/pull/1472.
+It is 2.25x faster than it was before just by changing hashing function. This is one of the most valuable performance optimization that can be done in minutes, and, to be honest, I don't know why it isn't forced by big players like API-Platform or Symfony itself in their distributions. Let's try to change that and help other developers to not waste time: [api-platform/docs#1472](https://github.com/api-platform/docs/pull/1472).
 
 <a name="do-not-use-doctrine-logging-by-default"></a>
 ## Do not use Doctrine logging by default
@@ -87,10 +87,7 @@ Let's disable doctrine logging for the `test` environment:
 # config/packages/test/doctrine.yaml
 doctrine:
     dbal:
-        default_connection: default
-        connections:
-            default:
-                logging: false
+        logging: false
 ```
 
 Run the tests again and compare with the previous results:
@@ -105,7 +102,7 @@ Such an easy change and another minute is gone. This improvement highly depends 
 <a name="set-app-debug-false"></a>
 ## Set `APP_DEBUG` to `false`
 
-It was proposed [back in 2019](https://github.com/symfony/recipes/pull/530) by **@javiereguiluz**, but wasn't merged in. Though, now Symfony's documentation mentions this improvement in a ["Set-up your Test Environment"](https://symfony.com/doc/current/testing.html#set-up-your-test-environment) paragraph:
+It was proposed [back in 2019](https://github.com/symfony/recipes/pull/530) by **@javiereguiluz**, but didn't get enough popularity. Though, now Symfony's documentation mentions this improvement in a ["Set-up your Test Environment"](https://symfony.com/doc/current/testing.html#set-up-your-test-environment) paragraph:
 
 > It is recommended to run your test with `debug` set to `false` on your CI server, as it significantly improves test performance.
 
@@ -160,12 +157,14 @@ throw new ConflictHttpException('There is a conflict between X and Y');
 
 asserting in tests that response contains exactly this exception message `There is a conflict between X and Y` in functional tests when `APP_DEBUG=true`, while in fact the response message is `The server returned a "409 Conflict".` with `APP_DEBUG=false`, and test start failing after using `APP_DEBUG=false`.
 
-Using `APP_DEBUG=false` with functional tests is a *right way* from `5xx` errors points of view and this mimics a real production environment.
+Using `APP_DEBUG=false` with functional tests is a *right way* from errors/exceptions points of view and this mimics a real production environment.
+
+Again, to save developers' time, let's try to change API-Platform distribution and add this behavior by default: [api-platform/api-platform#2078](https://github.com/api-platform/api-platform/pull/2078) 
 
 <a name="completely-disable-xdebug"></a>
 ## Completely disable Xdebug
 
-Many of us install `Xdebug` for debugging purposes, adding it to the base development docker images or right to the local machine. If you use `pcov` to collect a coverage, `Xdebug` can still impact a performance of the test suite, even if you use `xdebug.mode=debug` but not `xdebug.mode=coverage`.
+Many of us install `Xdebug` for debugging purposes, adding it to the base development docker images or right to the local machine. If you use `pcov` to collect a coverage or _even if you don't collect coverage at all_, `Xdebug` can still impact a performance of the test suite, even if you use `xdebug.mode=debug` but not `xdebug.mode=coverage`.
 
 So make sure to completely disable `Xdebug` before running your tests:
 
@@ -179,6 +178,8 @@ For our project, we managed to get a great performance boost by applying this ap
 - Time: 02:45.307, Memory: 473.00 MB
 + Time: 01:47.368, Memory: 449.00 MB
 ```
+
+> There is no need to install `Xdebug` on CI if you collect coverage with `pcov`, so in our case CI was not affected.
 
 Moreover, we did the same for many other commands in our `Makefile`, for example:
 
@@ -236,7 +237,7 @@ Running a test suite with 4 threads for our project gives the following performa
 + Time: 00:34.256, Memory: 40.00 MB
 ```
 
-Remember, we started with `Time: 12:25.512, Memory: 551.01 MB`? 
+Do you remember we started with `Time: 12:25.512, Memory: 551.01 MB`? 
 
 After all the changes, it's `Time: 00:34.256, Memory: 40.00 MB`! This is **21x faster** than it was in the beginning.
 
@@ -252,7 +253,7 @@ Now, let's see how we can improve the speed of the test suite when we collect co
 
 As we can see, for this particular case `pcov` is 1.72x faster than `Xdebug`. Depending on your project, you can get even better results (e.g. [5x times faster](https://dev.to/swashata/setup-php-pcov-for-5-times-faster-phpunit-code-coverage-3d9c))
 
-`pcov` [has a comparable accuracy](https://github.com/krakjoe/pcov#differences-in-reporting) in coverage reports with `Xdebug`, so this should be a great choice unless you need a path/branch coverage (not supported by `pcov`).
+`pcov` [has a comparable accuracy](https://github.com/krakjoe/pcov#differences-in-reporting) in coverage reports with `Xdebug`, so this should be a great choice unless you need a path/branch coverage (which are not supported by `pcov`).
 
 <a name="collect-coverage-with-cache-directory"></a>
 ## Collect coverage with `cacheDirectory`
