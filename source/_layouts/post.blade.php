@@ -11,7 +11,7 @@
 
     <h1 class="leading-none mb-2">{{ $page->title }}</h1>
 
-    <p class="text-gray-700 text-xl md:mt-0">{{ $page->author }}  •  {{ date('F j, Y', $page->date) }}</p>
+    <p class="text-gray-700 text-xl md:mt-0">{{ date('F j, Y', $page->date) }}  •  <a class="text-gray-700 text-xl font-normal" style="text-decoration: underline dashed" target="_blank" href="https://github.com/maks-rafalko/maks-rafalko.github.io/blob/main/source/_posts/{{ $page->getFilename() }}.md">Edit this Post</a></p>
 
     @if ($page->categories)
         @foreach ($page->categories as $i => $category)
