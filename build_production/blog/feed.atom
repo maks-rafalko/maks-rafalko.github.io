@@ -1,0 +1,329 @@
+<?xml version="1.0"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>Maks Rafalko</title>
+    <link href="https://maks-rafalko.github.io/blog" />
+    <link type="application/atom+xml" rel="self" href="https://maks-rafalko.github.io/blog/feed.atom" />
+    <updated>2021-11-21T00:31:17+00:00</updated>
+    <id>https://maks-rafalko.github.io/blog/feed.atom</id>
+    <author>
+        <name>Maks Rafalko</name>
+    </author>
+                <entry>
+    <id>https://maks-rafalko.github.io/blog/2021-11-21/symfony-tests-performance</id>
+    <link type="text/html" rel="alternate" href="https://maks-rafalko.github.io/blog/2021-11-21/symfony-tests-performance" />
+    <title>Improve Symfony Tests Performance</title>
+    <published>2021-11-21T00:00:00+00:00</published>
+    <updated>2021-11-21T00:00:00+00:00</updated>
+    <author>
+        <name>Maks Rafalko</name>
+    </author>
+    <summary type="html">Using more simple password hashers
+Do not use Doctrine logging by default
+Set &lt;code&gt;APP_DEBUG&lt;/code&gt; to &lt;code&gt;false&lt;/code&gt;
+Completely disable Xdebug
+Parallel tests execution using Paratest
+Collect coverage with &lt;code&gt;pcov&lt;/code&gt; if possible
+Collect......</summary>
+    <content type="html"><![CDATA[
+        <ul>
+<li><a href="#using-more-simple-password-hasher">Using more simple password hashers</a></li>
+<li><a href="#do-not-use-doctrine-logging-by-default">Do not use Doctrine logging by default</a></li>
+<li><a href="#set-app-debug-false">Set <code>APP_DEBUG</code> to <code>false</code></a></li>
+<li><a href="#completely-disable-xdebug">Completely disable Xdebug</a></li>
+<li><a href="#parallel-tests-execution-using-paratest">Parallel tests execution using Paratest</a></li>
+<li><a href="#collect-coverage-with-pcov-if-possible">Collect coverage with <code>pcov</code> if possible</a></li>
+<li><a href="#collect-coverage-with-cache-directory">Collect coverage with <code>cacheDirectory</code></a></li>
+</ul>
+
+<p>For all the latest Symfony projects at my company we were writing unit and mostly functional tests, occasionally improving their performance, but didn't have a chance to summarize all the improvements we made to speed up the test suite.</p>
+
+<p>In this article, I will show the most comprehensive list of tips and tricks to decrease tests time, resource consumption and improve their speed.</p>
+
+<p>First, let's start with our baseline for one of the projects.</p>
+
+<ul>
+<li><code>2285</code> - the total number of tests</li>
+<li><code>979</code> unit tests</li>
+<li><code>1306</code> functional tests (Symfony's <code>WebTestCase</code>, testing API endpoints)</li>
+<li>Symfony 5.3, PHP 8.1</li>
+</ul>
+
+<p>The whole test suite <em>before</em> optimizations takes: <code>Time: 12:25.512, Memory: 551.01 MB</code>.</p>
+
+<p>Let's see what we can do here.</p>
+
+<p><a name="using-more-simple-password-hasher"></a></p>
+
+<h2>Using more simple password hasher</h2>
+
+<p>Password hashers are used in Symfony to hash the raw password during persisting the User to database and to verify password validity. For production, we have to use <a href="https://symfony.com/doc/current/security/passwords.html#supported-algorithms">more reliable</a> hashing algorithms which are quite slow by their nature (Argon2, bcrypt, etc.).</p>
+
+<p>While checking 1 password during login is not a big deal, imaging hashing passwords thousands of times during tests execution. This becomes a bottleneck.</p>
+
+<p>Instead of using mentioned hashing algorithms, we can use <code>md5</code> for <code>test</code> environment and increase the speed of the test suite.</p>
+
+<pre><code class="language-yaml"># config/packages/security.yaml for dev &amp; prod env
+security:
+    password_hashers:
+      App\Entity\User\User:
+        algorithm: argon2i
+
+
+# override in config/packages/test/security.yaml for test env
+security:
+    password_hashers:
+        App\Entity\User\User:
+            algorithm: md5
+            encode_as_base64: false
+            iterations: 0
+</code></pre>
+
+<p>Let's run <code>phpunit</code> again and check the results:</p>
+
+<pre><code class="language-bash">vendor/bin/phpunit
+
+...
+
+Time: 05:32.496, Memory: 551.00 MB
+</code></pre>
+
+<p>What an improvement!</p>
+
+<pre><code class="language-diff">- Time: 12:25.512, Memory: 551.01 MB
++ Time: 05:32.496, Memory: 551.00 MB
+</code></pre>
+
+<p>It is 2.25x faster than it was before just by changing hashing function. This is one of the most valuable performance optimization that can be done in minutes, and, to be honest, I don't know why it isn't forced by big players like API-Platform or Symfony itself in their distributions. Let's try to change that: PR (!!!).</p>
+
+<p><a name="do-not-use-doctrine-logging-by-default"></a></p>
+
+<h2>Do not use Doctrine logging by default</h2>
+
+<p>After a couple of years working with the test suite with disabled Doctrine logging, we didn't experience any inconveniences. When there is an error thrown, stack trace will have a failed SQL query in the log/output anyway. So for tests execution, there is no really a need to log SQL queries to the log file, as in most cases you will need them only in case of errors, which already works as mentioned above.</p>
+
+<p>Let's disable doctrine logging for the <code>test</code> environment:</p>
+
+<pre><code class="language-yaml"># config/packages/test/doctrine.yaml
+doctrine:
+    dbal:
+        default_connection: default
+        connections:
+            default:
+                logging: false
+</code></pre>
+
+<p>Run the tests again and compare with the previous results:</p>
+
+<pre><code class="language-diff">- Time: 05:32.496, Memory: 551.00 MB
++ Time: 04:13.959, Memory: 547.01 MB
+</code></pre>
+
+<p>Such an easy change and another minute is gone. This improvement highly depends on how you use the (monolog) logger for <code>test</code> environment. General tip: do not log too much for tests. For example, setting log level <code>debug</code> is not necessary, and for tests you <a href="https://github.com/api-platform/api-platform/blob/ac68010c818bde422b97a7044b8df04176e970a4/api/config/packages/test/monolog.yaml#L5">can use</a> production-like configuration - <code>fingercrossed</code> handler with <code>action: error</code>.</p>
+
+<p><a name="set-app-debug-false"></a></p>
+
+<h2>Set <code>APP_DEBUG</code> to <code>false</code></h2>
+
+<p>It was proposed <a href="https://github.com/symfony/recipes/pull/530">back in 2019</a> by <strong>@javiereguiluz</strong>, but wasn't merged in. Though, now Symfony's documentation mentions this improvement in a <a href="https://symfony.com/doc/current/testing.html#set-up-your-test-environment">"Set-up your Test Environment"</a> paragraph:</p>
+
+<blockquote>
+  <p>It is recommended to run your test with <code>debug</code> set to <code>false</code> on your CI server, as it significantly improves test performance.</p>
+</blockquote>
+
+<p>To disable debug mode, add the following line to your <code>phpunit.xml</code> file:</p>
+
+<pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+
+&lt;phpunit &gt;
+    &lt;php&gt;
+        &lt;!--  ..... --&gt;
+        &lt;server name="APP_DEBUG" value="false" /&gt;
+    &lt;/php&gt;
+&lt;/phpunit&gt;
+
+</code></pre>
+
+<p>Disabling <code>debug</code> mode also disables clearing the cache. And if your tests don't run in a clean environment each time (for example tests are executed locally, where you always change the source files), you have to manually clear the cache each time <code>PHPUnit</code> is executed.</p>
+
+<p>This is how it looks like on our project inside <code>PHPUnit</code>'s <code>bootstrap</code> file:</p>
+
+<pre><code class="language-php">&lt;?php
+
+use Symfony\Component\Filesystem\Filesystem;
+
+require dirname(__DIR__).'/vendor/autoload.php';
+
+// ...
+
+(new Filesystem())-&gt;remove([__DIR__ . '/../var/cache/test']);
+
+echo "\nTest cache cleared\n";
+</code></pre>
+
+<p>We can live with this "inconvenience", especially with the benefit it gets. Ready to see the results?</p>
+
+<pre><code class="language-diff">- Time: 04:13.959, Memory: 547.01 MB
++ Time: 02:45.307, Memory: 473.00 MB
+</code></pre>
+
+<p>Besides the speed, there is one more (I think major) benefit of using <code>APP_DEBUG=false</code>. Functional tests start responding with <code>Internal Server Error</code> rather than with an exception message thrown from the source code.</p>
+
+<p>This can be a dealbreaker in Symfony projects. I saw a couple of projects, where people used the following code:</p>
+
+<pre><code class="language-php"># App\Controller\SomeController.php
+
+throw new ConflictHttpException('There is a conflict between X and Y');
+</code></pre>
+
+<p>asserting in tests that response contains exactly this exception message <code>There is a conflict between X and Y</code> in functional tests when <code>APP_DEBUG=true</code>, while in fact the response message is <code>The server returned a "409 Conflict".</code> with <code>APP_DEBUG=false</code>, and test start failing after using <code>APP_DEBUG=false</code>.</p>
+
+<p>Using <code>APP_DEBUG=false</code> with functional tests is a <em>right way</em> from <code>5xx</code> errors points of view and this mimics a real production environment.</p>
+
+<p><a name="completely-disable-xdebug"></a></p>
+
+<h2>Completely disable Xdebug</h2>
+
+<p>Many of us install <code>Xdebug</code> for debugging purposes, adding it to the base development docker images or right to the local machine. If you use <code>pcov</code> to collect a coverage, <code>Xdebug</code> can still impact a performance of the test suite, even if you use <code>xdebug.mode=debug</code> but not <code>xdebug.mode=coverage</code>.</p>
+
+<p>So make sure to completely disable <code>Xdebug</code> before running your tests:</p>
+
+<pre><code class="language-bash">XDEBUG_MODE=off vendor/bin/phpunit
+</code></pre>
+
+<p>For our project, we managed to get a great performance boost by applying this approach on development environment:</p>
+
+<pre><code class="language-diff">- Time: 02:45.307, Memory: 473.00 MB
++ Time: 01:47.368, Memory: 449.00 MB
+</code></pre>
+
+<p>Moreover, we did the same for many other commands in our <code>Makefile</code>, for example:</p>
+
+<pre><code class="language-bash"># Makefile
+DISABLE_XDEBUG=XDEBUG_MODE=off
+
+app-reinstall: prerequisites ## Setup application database with fixtures
+    $(DISABLE_XDEBUG) bin/console doctrine:database:drop --force --if-exists
+    $(DISABLE_XDEBUG) bin/console doctrine:database:create
+    $(DISABLE_XDEBUG) bin/console doctrine:schema:update --force
+    $(DISABLE_XDEBUG) bin/console doctrine:fixtures:load -n
+</code></pre>
+
+<p><strong>Note:</strong> There are a number of OSS tools that use <a href="https://github.com/composer/xdebug-handler"><code>composer/xdebug-handler</code></a> that can <em>automatically</em> disable <code>Xdebug</code> and re-run the process. From my point of view - this is very convenient and it should be used if possible for such tools as PHP Magic Detector, PHP-CS-Fixer, etc. Basically, for static analysis tools.</p>
+
+<blockquote>
+  <p>Do not use <code>Xdebug</code> for collecting code coverage unless you need a <a href="https://doug.codes/php-code-coverage#branch-coverage"><code>path</code>/<code>branch</code> coverage</a>. Use <code>pcov</code> instead (explained below)</p>
+</blockquote>
+
+<p><a name="parallel-tests-execution-using-paratest"></a></p>
+
+<h2>Parallel tests execution using Paratest</h2>
+
+<p>Every good tool has an option to be executed in parallel (to name a few: <code>Psalm</code>, <code>PHPStan</code>, <code>Infection</code>). To get all the power from multicore processor of your local machine or CI server, make sure to run your tests in parallel as well.</p>
+
+<p>Personally, I recommend using <a href="https://github.com/paratestphp/paratest"><code>Paratest</code></a>. It is a wrapper for <code>PHPUnit</code> that just works, even code coverage can be collected and combined from different threads.</p>
+
+<p>If you use DB for your functional tests, you will have to set up as many DB schemas as threads you want to use in <code>Paratest</code>. This library <a href="https://github.com/paratestphp/paratest#test-token">exposes</a> a <code>TEST_TOKEN=&lt;int&gt;</code> environment variable that can be used to determine what DB connection to use.</p>
+
+<p>Imaging you run your tests with 4 threads, so you need 4 DB schemas and 4 different DB connections:</p>
+
+<pre><code class="language-bash">vendor/bin/paratest --processes=4 --runner=WrapperRunner
+</code></pre>
+
+<p>To configure Doctrine to use different connections, the following config can be used:</p>
+
+<pre><code class="language-yaml"># config/packages/test/doctrine.yaml
+
+parameters:
+    test_token: 1
+
+doctrine:
+    dbal:
+        dbname: 'db_%env(default:test_token:TEST_TOKEN)%'
+</code></pre>
+
+<p>In this case, depending on <code>TEST_TOKEN</code> variable, <code>PHPUnit</code> will run an application connected to different databases: <code>db_1</code>, <code>db_2</code>, <code>db_3</code>, <code>db_4</code>.</p>
+
+<p>Why is it needed? Because tests, executed simultaneously for the same DB, can break each other: they can rewrite or remove the same data, transactions can be time outed or locked. Thus, running tests in isolation - when each thread uses its own DB - fixes this issue.</p>
+
+<p>Running a test suite with 4 threads for our project gives the following performance boost:</p>
+
+<pre><code class="language-diff">- Time: 01:47.368, Memory: 449.00 MB
++ Time: 00:34.256, Memory: 40.00 MB
+</code></pre>
+
+<p>Remember, we started with <code>Time: 12:25.512, Memory: 551.01 MB</code>?</p>
+
+<p>After all the changes, it's <code>Time: 00:34.256, Memory: 40.00 MB</code>! This is <strong>21x faster</strong> than it was in the beginning.</p>
+
+<p><a name="collect-coverage-with-pcov-if-possible"></a></p>
+
+<h2>Collect coverage with <code>pcov</code> if possible</h2>
+
+<p>Now, let's see how we can improve the speed of the test suite when we collect coverage data. To make it more visible, let's step back and run our test suite without <code>Paratest</code>, using 1 thread in <code>PHPUnit</code> with <code>Xdebug</code> and then <code>pcov</code> as a coverage driver.</p>
+
+<pre><code class="language-diff">- Time: 03:49.987, Memory: 575.00 MB # Xdebug
++ Time: 02:13.209, Memory: 519.01 MB # pcov
+</code></pre>
+
+<p>As we can see, for this particular case <code>pcov</code> is 1.72x faster than <code>Xdebug</code>. Depending on your project, you can get even better results (e.g. <a href="https://dev.to/swashata/setup-php-pcov-for-5-times-faster-phpunit-code-coverage-3d9c">5x times faster</a>)</p>
+
+<p><code>pcov</code> <a href="https://github.com/krakjoe/pcov#differences-in-reporting">has a comparable accuracy</a> in coverage reports with <code>Xdebug</code>, so this should be a great choice unless you need a path/branch coverage (not supported by <code>pcov</code>).</p>
+
+<p><a name="collect-coverage-with-cache-directory"></a></p>
+
+<h2>Collect coverage with <code>cacheDirectory</code></h2>
+
+<p>As <a href="https://github.com/paratestphp/paratest#generating-code-coverage">suggested</a> in the Paratest repository:</p>
+
+<blockquote>
+  <p>Beginning from <code>PHPUnit</code> 9.3.4, it is strongly advised to set a coverage cache directory, see <a href="https://github.com/sebastianbergmann/phpunit/blob/9.3.4/ChangeLog-9.3.md#934---2020-08-10">PHPUnit Changelog @ 9.3.4</a>.</p>
+</blockquote>
+
+<p>Before doing this update, let's see how much time does it take to run <code>PHPUnit</code> with collecting coverage metrics:</p>
+
+<pre><code class="language-bash">XDEBUG_MODE=off vendor/bin/paratest -p4 --runner=WrapperRunner --coverage-clover=reports/coverage.xml --coverage-html=reports
+
+...
+
+Time: 01:02.904, Memory: 478.93 MB
+Generating code coverage report ... done [00:10.796]
+</code></pre>
+
+<p>Total time with code coverage reports generating is 1m 13s.</p>
+
+<p>Now, let's add a <code>cacheDirectory</code> in <code>phpunit.xml</code> file:</p>
+
+<pre><code class="language-diff">- &lt;coverage&gt;
++ &lt;coverage cacheDirectory=".coverage-cache"&gt;
+</code></pre>
+
+<p>and run <code>PHPUnit</code> with collecting code coverage again. Here are the results:</p>
+
+<pre><code class="language-diff">- Time: 01:02.904, Memory: 478.93 MB
+- Generating code coverage report ... done [00:10.796]
++ Time: 00:43.759, Memory: 475.70 MB
++ Generating code coverage report ... done [00:05.394]
+</code></pre>
+
+<p>Nice, much faster now. On a real big tests suite, we were able to decrease the time from 11 minutes to 5 minutes on CI thanks to <code>cacheDirectory</code> setting.</p>
+
+<blockquote>
+  <p>Read more about how it works under the hood in a post by Sebastian Bergmann: <a href="https://thephp.cc/articles/caching-makes-everything-faster-right">https://thephp.cc/articles/caching-makes-everything-faster-right</a></p>
+</blockquote>
+
+<hr />
+
+<p>Credits &amp; related articles:</p>
+
+<ul>
+<li><a href="https://titouangalopin.com/posts/60edL3P43zwG6uGUiIlvPL/tips-for-a-reliable-and-fast-test-suite-with-symfony-and-doctrine">https://titouangalopin.com/posts/60edL3P43zwG6uGUiIlvPL/tips-for-a-reliable-and-fast-test-suite-with-symfony-and-doctrine</a></li>
+<li><a href="https://codewave.eu/blog/how-to-reduce-time-symfony-integration-tests">https://codewave.eu/blog/how-to-reduce-time-symfony-integration-tests</a></li>
+<li><a href="https://habr.com/ru/post/505736/">https://habr.com/ru/post/505736/</a></li>
+</ul>
+
+<p class="my-12 text-center">
+    <b>Find this interesting?</b> Let's continue the conversation on <a href="https://twitter.com/maks_rafalko" rel="nofollow">Twitter</a>.
+</p>
+    ]]></content>
+</entry>
+    </feed>
