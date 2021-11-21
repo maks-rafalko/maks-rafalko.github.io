@@ -14,7 +14,7 @@ return [
         'posts' => [
             'author' => 'Maks Rafalko', // Default author, if not provided in a post
             'sort' => '-date',
-            'path' => 'blog/{filename}',
+            'path' => 'blog/{date|Y-m-d}/{filename}',
         ],
         'categories' => [
             'path' => '/blog/categories/{filename}',
