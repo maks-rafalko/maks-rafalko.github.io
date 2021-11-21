@@ -74,7 +74,7 @@ What an improvement!
 + Time: 05:32.496, Memory: 551.00 MB
 ```
 
-It is 2.25x faster than it was before just by changing hashing function. This is one of the most valuable performance optimization that can be done in minutes, and, to be honest, I don't know why it isn't forced by big players like API-Platform or Symfony itself in their distributions. Let's try to change that: PR (!!!).
+It is 2.25x faster than it was before just by changing hashing function. This is one of the most valuable performance optimization that can be done in minutes, and, to be honest, I don't know why it isn't forced by big players like API-Platform or Symfony itself in their distributions. Let's try to change that and help other developers to now waste time: https://github.com/api-platform/docs/pull/1472.
 
 <a name="do-not-use-doctrine-logging-by-default"></a>
 ## Do not use Doctrine logging by default
