@@ -1,4 +1,6 @@
-/build_*/
+/build_local/
 /node_modules/
 /vendor/
 .DS_Store
+.idea
+source/assets/build
