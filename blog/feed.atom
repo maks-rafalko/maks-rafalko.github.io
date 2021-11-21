@@ -3,7 +3,7 @@
     <title>Maks Rafalko</title>
     <link href="https://maks-rafalko.github.io/blog" />
     <link type="application/atom+xml" rel="self" href="https://maks-rafalko.github.io/blog/feed.atom" />
-    <updated>2021-11-21T19:18:40+00:00</updated>
+    <updated>2021-11-21T19:55:19+00:00</updated>
     <id>https://maks-rafalko.github.io/blog/feed.atom</id>
     <author>
         <name>Maks Rafalko</name>
@@ -360,7 +360,7 @@ Generating code coverage report ... done [00:10.796]
 
 <p>Functional tests are very powerful, as they not just test independent <em>unit</em> of code, but test how things work together. For example, if you are testing API endpoints, you can test the whole flow of your application: from <code>Request</code> to <code>Response</code>.</p>
 
-<p>However, testing every single condition and line of code only by functional tests is expensive, as it requires too many of slow tests.</p>
+<p>However, testing every single condition and line of code only by functional tests is expensive, as it requires too many slow tests.</p>
 
 <p>Imagine, we have an API endpoint for getting Order details: <code>GET /orders/{id}</code>. And the following business rules should apply:</p>
 
@@ -369,7 +369,7 @@ Generating code coverage report ... done [00:10.796]
 <li><code>Manager</code> <strong>can</strong> view Order details</li>
 <li><code>User</code> who placed this Order <strong>can</strong> view Order details</li>
 <li><code>User</code> who was given shared access but not placed this Order <strong>can</strong> view Order details</li>
-<li>Any other <code>User</code> <strong>can not</strong> view Order details</li>
+<li>Any other authenticated <code>User</code> <strong>can not</strong> view Order details</li>
 <li>Not authenticated <code>User</code> <strong>can not</strong> view Order details</li>
 </ul>
 
