@@ -15,6 +15,9 @@ cover_image: /assets/img/symfony-tests-performance.png
 * [Parallel tests execution using Paratest](#parallel-tests-execution-using-paratest)
 * [Collect coverage with `pcov` if possible](#collect-coverage-with-pcov-if-possible)
 * [Collect coverage with `cacheDirectory`](#collect-coverage-with-cache-directory)
+* [Miscellaneous](#miscellaneous)
+  * [Use `dama/doctrine-test-bundle` to rollback transaction after each test](#dama-doctrine-test-bundle)
+  * [Combine functional & unit tests. Prefer Unit tests](#prefer-unit-tests)
 
 For all the latest Symfony projects at my company we were writing unit and mostly functional tests, occasionally improving their performance, but didn't have a chance to summarize all the improvements we made to speed up the test suite.
 
@@ -28,6 +31,11 @@ First, let's start with our baseline for one of the projects.
 * Symfony 5.3, PHP 8.1
 
 The whole test suite *before* optimizations takes: `Time: 12:25.512, Memory: 551.01 MB`.
+
+Why having a fast and reliable tests suite is important? There a lot of reasons, but 2 main are:
+
+1. The more tests suite takes to be executed, the more annoying it is for a developer
+2. The more resources (CPU, Memory) tests suite takes, the worse it is for CI server (it can slow down other jobs/builds) and eventually for our Planet
 
 Let's see what we can do here.
 
@@ -295,6 +303,92 @@ and run `PHPUnit` with collecting code coverage again. Here are the results:
 Nice, much faster now. On a real big tests suite, we were able to decrease the time from 11 minutes to 5 minutes on CI thanks to `cacheDirectory` setting. 
 
 > Read more about how it works under the hood in a post by Sebastian Bergmann: [https://thephp.cc/articles/caching-makes-everything-faster-right](https://thephp.cc/articles/caching-makes-everything-faster-right)
+
+<a name="miscellaneous"></a>
+## Miscellaneous
+
+<a name="dama-doctrine-test-bundle"></a>
+### Use `dama/doctrine-test-bundle` to rollback transaction after each test
+
+There are many ways on how to work with a database in functional tests, including setting up DB schema _before_ each test case (on `setUp()` method), truncating only changed tables _after_ each test case and so on.
+
+Things we should be aware of:
+
+1. We **should not** setup DB schema for each test. This is a one-time operation before tests are started.
+2. We **should not** insert required for application work data for each test. Examples: lookup tables, administrator user, countries and states. Basically, everything that is static and stored in the DB - should be inserted one time before tests are started. This data should be reused across all the functional tests.
+
+When these 2 points are done, all we need to do is to restore DB to the same state that it was when a test case started. And here is when [`dama/doctrine-test-bundle`](https://github.com/dmaicher/doctrine-test-bundle) comes into play.
+
+It decorates a Doctrine database connection and starts a transaction _before_ each test then rolls it back _after_ it. By doing a `ROLLBACK`, each test leaves a database in its initial state after execution, while during the test we can do whatever we want - inserts, updates, deletes and searches.
+
+> This results in a performance boost as there is no need to rebuild the schema, import a backup SQL dump or re-insert fixtures before every testcase. 
+
+As always, results depend on your project, but [here is an example](https://locastic.com/blog/speed-up-database-refreshing-in-phpunit-tests/) of 40% performance improvement by using this bundle/approach.
+
+<a name="prefer-unit-tests"></a>
+### Combine functional & unit tests. Prefer Unit tests
+
+Functional tests are very powerful, as they not just test independent _unit_ of code, but test how things work together. For example, if you are testing API endpoints, you can test the whole flow of your application: from `Request` to `Response`. 
+
+However, testing every single condition and line of code only by functional tests is expensive, as it requires too many of slow tests.
+
+Imagine, we have an API endpoint for getting Order details: `GET /orders/{id}`. And the following business rules should apply:
+
+* `Admin` **can** view Order details
+* `Manager` **can** view Order details
+* `User` who placed this Order **can** view Order details
+* `User` who was given shared access but not placed this Order **can** view Order details
+* Any other `User` **can not** view Order details
+* Not authenticated `User` **can not** view Order details
+
+API endpoint is protected by Security check: 
+
+```php
+#[IsGranted('ORDER_VIEW', object)]
+public function viewOrder(Order $order) { /* ... */ }
+```
+
+To cover these requirements, we need to write at least 6 tests. But instead of creating 6 slow functional tests, we can create 2, just to check that action in a controller is protected by `#[IsGranted]` attribute.
+
+```php
+public function test_guest_user_can_not_view_order_details(): void
+{
+    $order = $this->createOrder();
+
+    // send request by guest user
+    $this->sendRequest(Request::METHOD_GET, sprintf('/api/orders/%s', $order->getId()));
+
+    $this->assertRequestIsForbidden();
+}
+
+public function test_admin_user_can_view_order_details(): void
+{
+    $this->logInAsAdministrator();
+
+    $order = $this->createOrder();
+
+    // send request by administrator user
+    $this->sendRequest(Request::METHOD_GET, sprintf('/api/orders/%s', $order->getId()));
+
+    $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+}
+```
+
+All other cases can be checked in **Unit** tests for Security Voter and its logic. With this approach, we know that our voter is being called during API call (functional test checks it), and all the conditions/branches are covered by fast unit tests.
+
+To give you an idea about how fast unit tests are (from a real project discussed above): 
+
+```bash
+XDEBUG_MODE=off vendor/bin/phpunit --testsuite=Unit
+
+Time: 00:00.750, Memory: 66.01 MB
+
+OK (979 tests, 2073 assertions)
+```
+
+So `979` unit tests take less than `1s` to be executed in 1 thread, while `1306` functional tests take `1m 46s` in 1 thread. For this case, unit tests are **105x** times faster. While 1 functional test is being executed, we can run 100 unit tests!
+
+Also, having more unit tests makes Mutation Testing ([Infection](https://infection.github.io/guide/)) work _much_ faster for your project, while functional tests slows down this process.
 
 ---
 
