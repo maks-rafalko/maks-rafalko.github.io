@@ -156,5 +156,5 @@ And again, MacBook with its new M3 PRO processor outperforms Dell XPS with Intel
 Very interesting and promising!
 
 <p class="my-12 text-center">
-    <b>Find this interesting?</b> Let's continue the conversation on <a href="https://twitter.com/maks_rafalko" rel="nofollow">Twitter</a>.
+    <b>Find this interesting?</b> Let's continue the conversation on <a href="https://x.com/maks_rafalko/status/1804868289732002283" rel="nofollow">Twitter</a>.
 </p>
