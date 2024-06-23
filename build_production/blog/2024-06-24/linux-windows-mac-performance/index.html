@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="description" content="Comparing Linux, Windows, Mac performance with Symfony tests suite.">
+
+        <meta property="og:title" content="Comparing Linux, Windows, Mac performance with Symfony tests suite on Docker | Maks Rafalko"/>
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content="https://maks-rafalko.github.io/blog/2024-06-24/linux-windows-mac-performance"/>
+        <meta property="og:description" content="Comparing Linux, Windows, Mac performance with Symfony tests suite." />
+
+        <title>Comparing Linux, Windows, Mac performance with Symfony tests suite on Docker | Maks Rafalko</title>
+
+        <link rel="home" href="https://maks-rafalko.github.io">
+        <link rel="icon" href="/favicon.ico">
+        <link href="/blog/feed.atom" type="application/atom+xml" rel="alternate" title="Maks Rafalko Atom Feed">
+
+                    <!-- Insert analytics code here -->
+        
+        <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:300,300i,400,400i,700,700i,800,800i" rel="stylesheet">
+        <link rel="stylesheet" href="/assets/build/css/main.css?id=9fa499d70dbb7cfe9dab">
+    </head>
+
+    <body class="flex flex-col justify-between min-h-screen bg-gray-100 text-gray-800 leading-normal font-sans">
+        <header class="flex items-center shadow bg-white border-b h-24 py-4" role="banner">
+            <div class="container flex items-center max-w-8xl mx-auto px-4 lg:px-8">
+                <div class="flex items-center">
+                    <a href="/" title="Maks Rafalko home" class="inline-flex items-center">
+                        <img class="h-8 md:h-10 mr-3" src="/assets/img/logo.svg" alt="Maks Rafalko logo" />
+
+                        <h1 class="text-lg md:text-2xl text-blue-800 font-semibold hover:text-blue-600 my-0">Maks Rafalko</h1>
+                    </a>
+                </div>
+
+                <div id="vue-search" class="flex flex-1 justify-end items-center">
+                    <search></search>
+
+                    <nav class="hidden lg:flex items-center justify-end text-lg">
+    <a title="Maks Rafalko Blog" href="/blog"
+        class="ml-6 text-gray-700 hover:text-blue-600 ">
+        Blog
+    </a>
+
+
+
+
+
+
+    <a title="Maks Rafalko Twitter" href="https://twitter.com/maks_rafalko"
+        class="ml-6 text-gray-700 hover:text-blue-600">
+        Twitter
+    </a>
+</nav>
+
+                    <button class="flex justify-center items-center bg-blue-500 border border-blue-500 h-10 px-5 rounded-full lg:hidden focus:outline-none"
+    onclick="navMenu.toggle()"
+>
+    <svg id="js-nav-menu-show" xmlns="http://www.w3.org/2000/svg"
+        class="fill-current text-white h-9 w-4" viewBox="0 0 32 32"
+    >
+        <path d="M4,10h24c1.104,0,2-0.896,2-2s-0.896-2-2-2H4C2.896,6,2,6.896,2,8S2.896,10,4,10z M28,14H4c-1.104,0-2,0.896-2,2  s0.896,2,2,2h24c1.104,0,2-0.896,2-2S29.104,14,28,14z M28,22H4c-1.104,0-2,0.896-2,2s0.896,2,2,2h24c1.104,0,2-0.896,2-2  S29.104,22,28,22z"/>
+    </svg>
+
+    <svg id="js-nav-menu-hide" xmlns="http://www.w3.org/2000/svg"
+        class="hidden fill-current text-white h-9 w-4" viewBox="0 0 36 30"
+    >
+        <polygon points="32.8,4.4 28.6,0.2 18,10.8 7.4,0.2 3.2,4.4 13.8,15 3.2,25.6 7.4,29.8 18,19.2 28.6,29.8 32.8,25.6 22.2,15 "/>
+    </svg>
+</button>
+
+                </div>
+            </div>
+        </header>
+
+        <nav id="js-nav-menu" class="nav-menu hidden lg:hidden">
+    <ul class="my-0">
+        <li class="pl-4">
+            <a
+                title="Maks Rafalko Blog"
+                href="/blog"
+                class="nav-menu__item hover:text-blue-500 "
+            >Blog</a>
+        </li>
+
+
+
+
+
+
+
+        <li class="pl-4">
+            <a
+                title="Maks Rafalko Twitter"
+                href="https://twitter.com/maks_rafalko"
+                class="nav-menu__item hover:text-blue-500"
+            >Twitter</a>
+        </li>
+    </ul>
+</nav>
+
+        <main role="main" class="flex-auto w-full container max-w-4xl mx-auto py-16 px-6">
+                
+    <h1 class="leading-none mb-2">Comparing Linux, Windows, Mac performance with Symfony tests suite on Docker</h1>
+
+    <p class="text-gray-700 text-xl md:mt-0">June 24, 2024  •  <a class="text-gray-700 text-xl font-normal" style="text-decoration: underline dashed" target="_blank" href="https://github.com/maks-rafalko/maks-rafalko.github.io/blob/main/source/_posts/linux-windows-mac-performance.md">Edit this Post</a></p>
+
+                        <a
+                href="/blog/categories/php"
+                title="View posts in php"
+                class="inline-block bg-gray-300 hover:bg-blue-200 leading-loose tracking-wide text-gray-800 uppercase text-xs font-semibold rounded mr-4 px-3 pt-px"
+            >php</a>
+                    <a
+                href="/blog/categories/symfony"
+                title="View posts in symfony"
+                class="inline-block bg-gray-300 hover:bg-blue-200 leading-loose tracking-wide text-gray-800 uppercase text-xs font-semibold rounded mr-4 px-3 pt-px"
+            >symfony</a>
+                    <a
+                href="/blog/categories/tests"
+                title="View posts in tests"
+                class="inline-block bg-gray-300 hover:bg-blue-200 leading-loose tracking-wide text-gray-800 uppercase text-xs font-semibold rounded mr-4 px-3 pt-px"
+            >tests</a>
+                    <a
+                href="/blog/categories/linux"
+                title="View posts in linux"
+                class="inline-block bg-gray-300 hover:bg-blue-200 leading-loose tracking-wide text-gray-800 uppercase text-xs font-semibold rounded mr-4 px-3 pt-px"
+            >linux</a>
+                    <a
+                href="/blog/categories/mac"
+                title="View posts in mac"
+                class="inline-block bg-gray-300 hover:bg-blue-200 leading-loose tracking-wide text-gray-800 uppercase text-xs font-semibold rounded mr-4 px-3 pt-px"
+            >mac</a>
+                    <a
+                href="/blog/categories/windows"
+                title="View posts in windows"
+                class="inline-block bg-gray-300 hover:bg-blue-200 leading-loose tracking-wide text-gray-800 uppercase text-xs font-semibold rounded mr-4 px-3 pt-px"
+            >windows</a>
+                    <a
+                href="/blog/categories/docker"
+                title="View posts in docker"
+                class="inline-block bg-gray-300 hover:bg-blue-200 leading-loose tracking-wide text-gray-800 uppercase text-xs font-semibold rounded mr-4 px-3 pt-px"
+            >docker</a>
+                    <a
+                href="/blog/categories/orbstack"
+                title="View posts in orbstack"
+                class="inline-block bg-gray-300 hover:bg-blue-200 leading-loose tracking-wide text-gray-800 uppercase text-xs font-semibold rounded mr-4 px-3 pt-px"
+            >orbstack</a>
+            
+    <div class="border-b border-blue-200 mb-10 pb-4" v-pre>
+        <p>Currently, I have different laptops at home and can compare how fast different test suites can be on 3 Operation Systems:</p>
+
+<ul>
+<li>Windows</li>
+<li>Arch Linux (Manjaro)</li>
+<li>MacOS</li>
+</ul>
+
+<p>This is not a detailed review of processors and other hardware, rather just my experiments and interesting findings with 2 laptops and 3 OSs on them.</p>
+
+<ul>
+<li>Laptop 1: Dell XPS 9500 with i7-10750H 10Gen and 64Gb RAM. Release date: May 2020. It has Windows 11 PRO and Arch Linux Manjaro</li>
+<li>Laptop 2: MacBook PRO 14" with M3 PRO processor and 36Gb RAM. Release date: end of 2023</li>
+</ul>
+
+<h3>Windows with WSL2 with Docker vs native Docker on Linux</h3>
+
+<p>The first experiment is to compare the speed <em>on the same laptop</em> on different OSs.</p>
+
+<p>The first test suite is a Symfony-based project, API-Platform, with 900+ functional (<a href="https://symfony.com/doc/current/testing.html#write-your-first-application-test">application</a>) tests. Tests spin up a real MySQL database, actually 4 databases inside the same container and are executed in 4 threads using <a href="https://github.com/paratestphp/paratest">Paratest</a>. Tests use <code>WebTestCase</code> base class and BrowserKit under the hood.</p>
+
+<p>Before comparing, I assume that Linux with native Docker will have the best performance, so let's start from it and take it as a baseline.</p>
+
+<pre><code class="language-bash">docker compose exec php vendor/bin/paratest -p4 --runner=WrapperRunner
+</code></pre>
+
+<p>Results:</p>
+
+<pre><code class="language-bash">[...]
+............................................................... 819 / 901 ( 90%)
+............................................................... 882 / 901 ( 97%)
+...................                                             901 / 901 (100%)
+
+Time: 00:11.493, Memory: 26.00 MB
+
+OK (901 tests, 3914 assertions)
+</code></pre>
+
+<p>Pretty nice results. 11 seconds to run almost 1000 functional tests in 4 threads.</p>
+
+<p>Now let's boot into Windows and run the same test suite there.</p>
+
+<p>NOTE: While I write Windows, I work there on WSL2 exclusively. This is a separate topic to speak about, but in a nutshell, you will get the best performance on Windows OS if you do the following:</p>
+
+<ul>
+<li>you shouldn't store you code on Windows system, only under WSL2</li>
+<li>you shouldn't run Docker from Windows, only from WSl2</li>
+<li>basically, you should do everything from WSL2 and only run IDE from Windows, that can easily connect and edit code stored in WSL2</li>
+</ul>
+
+<p>So, I open WSL2 terminal and execute the same commands:</p>
+
+<pre><code class="language-bash">docker compose exec php vendor/bin/paratest -p4 --runner=WrapperRunner
+</code></pre>
+
+<p>Results:</p>
+
+<pre><code class="language-bash">[...]
+............................................................... 819 / 901 ( 90%)
+............................................................... 882 / 901 ( 97%)
+...................                                             901 / 901 (100%)
+
+Time: 00:11.230, Memory: 27.00 MB
+
+OK (901 tests, 3914 assertions)
+</code></pre>
+
+<p>I did it ~10 times and results vary less than by 1s. So 11.2s is an average time, which is <strong>the same speed as on native Linux with Docker</strong>.</p>
+
+<p>Let's sum it up correctly: if you configure Windows to store the source code on WSL2 and work with Docker from there, you will get the same or pretty much the same performance as on native Linux with Docker.</p>
+
+<h3>MacOS with OrbStack/Docker vs Docker on Windows/Linux</h3>
+
+<p>Now, let's compare this tests suite with MacBook Pro 14" with M3 PRO processor and 36Gb RAM.</p>
+
+<p>Instead of Docker, I tried to use <a href="https://orbstack.dev/">OrbStack</a>, which is a drop-in replacement.</p>
+
+<p>Run the command</p>
+
+<pre><code class="language-bash">docker compose exec php vendor/bin/paratest -p4 --runner=WrapperRunner
+</code></pre>
+
+<p>and see interesting results:</p>
+
+<pre><code class="language-bash">[...]
+............................................................... 819 / 901 ( 90%)
+............................................................... 882 / 901 ( 97%)
+...................                                             901 / 901 (100%)
+
+Time: 00:05.493, Memory: 26.00 MB
+
+OK (901 tests, 3914 assertions)
+</code></pre>
+
+<p>It's 2 times faster than on my Dell laptop, both on Windows and Linux 😳</p>
+
+<p>When it takes around 11 seconds on Windows and Linux, it takes only 5 seconds to run 901 functional tests on Mac. Nice results!</p>
+
+<p>Back in 2020, my experiments showed that Docker on Linux was extremely faster than on MacOS (2-3 times faster), but now, with the new M processor, it looks like it's changed. I will keep an eye on it, but very impressed by the results.</p>
+
+<p>Let's do one more comparison with <a href="https://infection.github.io/guide/">Infection</a>'s tests suite: 4000+ unit tests executed in 1 thread using PHPUnit:</p>
+
+<p>Docker on Linux:</p>
+
+<pre><code class="language-bash">[...]
+............................................................. 4026 / 4103 ( 98%)
+............................................................. 4087 / 4103 ( 99%)
+................                                              4103 / 4103 (100%)
+
+Time: 00:12.906, Memory: 100.00 MB
+
+OK, but some tests were skipped!
+Tests: 4103, Assertions: 9991, Skipped: 1.
+</code></pre>
+
+<p>Docker on Windows under WSL2:</p>
+
+<pre><code class="language-bash">[...]
+............................................................. 4026 / 4103 ( 98%)
+............................................................. 4087 / 4103 ( 99%)
+................                                              4103 / 4103 (100%)
+
+Time: 00:12.822, Memory: 100.00 MB
+
+OK, but some tests were skipped!
+Tests: 4103, Assertions: 9991, Skipped: 1.
+</code></pre>
+
+<p>OrbStack on MacOS:</p>
+
+<pre><code class="language-bash">[...]
+............................................................. 4026 / 4103 ( 98%)
+............................................................. 4087 / 4103 ( 99%)
+................                                              4103 / 4103 (100%)
+
+Time: 00:06.258, Memory: 96.00 MB
+
+OK, but some tests were skipped!
+Tests: 4103, Assertions: 9991, Skipped: 1.
+</code></pre>
+
+<p>And again, MacBook with its new M3 PRO processor outperforms Dell XPS with Intel i7-10750H 10gen both on Linux and Windows with WSL2.</p>
+
+<p>Very interesting and promising!</p>
+
+<p class="my-12 text-center">
+    <b>Find this interesting?</b> Let's continue the conversation on <a href="https://twitter.com/maks_rafalko" rel="nofollow">Twitter</a>.
+</p>
+    </div>
+
+    <nav class="flex justify-between text-sm md:text-base">
+        <div>
+                            <a href="https://maks-rafalko.github.io/blog/2021-11-21/symfony-tests-performance" title="Older Post: Improve Symfony Tests Performance">
+                    &LeftArrow; Improve Symfony Tests Performance
+                </a>
+                    </div>
+
+        <div>
+                    </div>
+    </nav>
+        </main>
+
+        <footer class="bg-white text-center text-sm mt-12 py-4" role="contentinfo">
+            <ul class="flex flex-col md:flex-row justify-center list-none">
+                <li class="md:mr-2">
+                    &copy; Maks Rafalko 2024.
+                </li>
+
+                <li class="md:mr-2">
+                    Follow on <a href="https://twitter.com/maks_rafalko" title="Twitter">Twitter</a>.
+                </li>
+
+                <li>
+                    Built with <a href="http://jigsaw.tighten.co" title="Jigsaw by Tighten">Jigsaw</a>.
+                </li>
+            </ul>
+        </footer>
+
+        <script src="/assets/build/js/main.js?id=ce229a02b76214084e68"></script>
+
+        <script>
+    const navMenu = {
+        toggle() {
+            const menu = document.getElementById('js-nav-menu');
+            menu.classList.toggle('hidden');
+            menu.classList.toggle('lg:block');
+            document.getElementById('js-nav-menu-hide').classList.toggle('hidden');
+            document.getElementById('js-nav-menu-show').classList.toggle('hidden');
+        },
+    }
+</script>
+    </body>
+</html>

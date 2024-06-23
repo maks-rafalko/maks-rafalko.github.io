@@ -1,5 +1,8 @@
 {
     "private": true,
+    "engines": {
+        "node": ">=16 <17"
+    },
     "scripts": {
         "dev": "mix",
         "watch": "mix watch",
