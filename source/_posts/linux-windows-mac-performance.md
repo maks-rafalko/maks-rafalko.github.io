@@ -50,10 +50,10 @@ Now let's boot into Windows and run the same test suite there.
 NOTE: While I write Windows, I work there on WSL2 exclusively. This is a separate topic to speak about, but in a nutshell, you will get the best performance on Windows OS if you do the following:
 
 - you shouldn't store you code on Windows system, only under WSL2
-- you shouldn't run Docker from Windows, only from WSl2
+- you shouldn't run docker commands from Windows, only from WSl2
 - basically, you should do everything from WSL2 and only run IDE from Windows, that can easily connect and edit code stored in WSL2
 
-So, I open WSL2 terminal and execute the same commands:
+So, I open WSL2 terminal and execute the same command:
 
 ```bash
 docker compose exec php vendor/bin/paratest -p4 --runner=WrapperRunner
