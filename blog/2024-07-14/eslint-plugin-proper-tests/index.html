@@ -20,7 +20,7 @@
                     <!-- Insert analytics code here -->
         
         <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:300,300i,400,400i,700,700i,800,800i" rel="stylesheet">
-        <link rel="stylesheet" href="/assets/build/css/main.css?id=9fa499d70dbb7cfe9dab">
+        <link rel="stylesheet" href="/assets/build/css/main.css?id=cd1568038c570fef6632">
     </head>
 
     <body class="flex flex-col justify-between min-h-screen bg-gray-100 text-gray-800 leading-normal font-sans">
@@ -184,7 +184,7 @@
 
 <p>Ok, let's get back to the rule. Here are a couple of real-life examples of bad code:</p>
 
-<pre><code class="language-ts">const response = await request.post(`/api/some-resource`);
+<pre><code class="language-ts">const response = await request.post('/api/some-resource');
 
 expect(response).toBeDefined();
 expect(response.status).toBe(200);
@@ -468,6 +468,8 @@ const isTypeFlagSet = (type: ts.Type, flagsToCheck: ts.TypeFlags): boolean =&gt;
 </blockquote>
 
 <p>This is how you can use TypeScript types to improve your ESLint rules and make them more accurate. Possibilities are endless!</p>
+
+<p>I encourage you to try these rules in your projects and see how they can improve the quality of your tests.</p>
 
 <p>If you like this plugin and the work I'm doing, consider <a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests/">giving it a Star on GitHub</a>.</p>
 
