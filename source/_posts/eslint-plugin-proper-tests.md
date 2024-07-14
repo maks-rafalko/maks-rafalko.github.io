@@ -30,12 +30,12 @@ To achieve the second point in an automatic way, it was decided to write custom 
 Below, I would like to show the most interesting rules that I've created and then applied to this work project.
 
 <a name="open-source-plugin"></a>
-## Open Source plugin
+## [#](#open-source-plugin) Open Source plugin
 
 [`eslint-plugin-proper-tests`](https://github.com/maks-rafalko/eslint-plugin-proper-tests) - let's quickly look into some of the rules from this plugin.
 
 <a name="no-useless-matcher-to-be-defined"></a>
-### [`no-useless-matcher-to-be-defined`](https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-useless-matcher-to-be-defined.md)
+### [#](#no-useless-matcher-to-be-defined) [`no-useless-matcher-to-be-defined`](https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-useless-matcher-to-be-defined.md)
 
 This rule disallows using `expect(...).toBeDefined()` matcher when it is obvious that a variable is always defined.
 
@@ -108,7 +108,7 @@ So, now we check the number of keys and exact values returned from Redis. When a
 > [Read below](#add-power-to-eslint-rules-with-typescript) to understand how to use TypeScript types to add more power to your ESLint rules
 
 <a name="no-useless-matcher-to-be-null"></a>
-### [`no-useless-matcher-to-be-null`](https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-useless-matcher-to-be-null.md)
+### [#](#no-useless-matcher-to-be-null) [`no-useless-matcher-to-be-null`](https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-useless-matcher-to-be-null.md)
 
 Similar rule to the previous one, this rule complains where `not.toBeNull()` is used when it shouldn't:
 
@@ -121,7 +121,7 @@ expect(user).not.toBeNull();
 From types point of view, `user` can not be `null`, so this check is useless and will be reported by this ESLint rule. Just remove it and replace with a proper expectation.
 
 <a name="no-mixed-expectation-groups"></a>
-### [`no-mixed-expectation-groups`](https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-mixed-expectation-groups.md)
+### [#](#no-mixed-expectation-groups) [`no-mixed-expectation-groups`](https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-mixed-expectation-groups.md)
 
 This rule reports an error if expectations for different variables are mixed with each other.
 
@@ -155,7 +155,7 @@ expect(entity).toMatchObject({...});
 ```
 
 <a name="no-long-arrays-in-test-each"></a>
-### [`no-long-arrays-in-test-each`](https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-long-arrays-in-test-each.md)
+### [#](#no-long-arrays-in-test-each) [`no-long-arrays-in-test-each`](https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-long-arrays-in-test-each.md)
 
 This rule disallows the usage of long arrays in `test.each()` calls.
 
@@ -200,7 +200,7 @@ test.each([
 
 Consider extracting such long arrays to a separate files with for example `.data.ts` postfix.
 
-The following code way better:
+The following code is much better:
 
 ```ts
 // some-service.data.ts
@@ -253,7 +253,7 @@ test.each(testCases)('$description', ({ inputValue, expectedOutput }: TestCase) 
 ```
 
 <a name="add-power-to-eslint-rules-with-typescript"></a>
-## Add more power to your ESLint rules with TypeScript
+## [#](#add-power-to-eslint-rules-with-typescript) Add more power to your ESLint rules with TypeScript
 
 [`eslint-plugin-proper-tests`](https://github.com/maks-rafalko/eslint-plugin-proper-tests) plugin uses TypeScript to provide more accurate results and get the power of TypeScript to understand variables types. 
 

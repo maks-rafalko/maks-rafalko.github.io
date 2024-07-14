@@ -20,7 +20,7 @@
                     <!-- Insert analytics code here -->
         
         <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:300,300i,400,400i,700,700i,800,800i" rel="stylesheet">
-        <link rel="stylesheet" href="/assets/build/css/main.css?id=cd1568038c570fef6632">
+        <link rel="stylesheet" href="/assets/build/css/main.css?id=9fa499d70dbb7cfe9dab">
     </head>
 
     <body class="flex flex-col justify-between min-h-screen bg-gray-100 text-gray-800 leading-normal font-sans">
@@ -164,13 +164,13 @@
 
 <p><a name="open-source-plugin"></a></p>
 
-<h2>Open Source plugin</h2>
+<h2><a href="#open-source-plugin">#</a> Open Source plugin</h2>
 
 <p><a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests"><code>eslint-plugin-proper-tests</code></a> - let's quickly look into some of the rules from this plugin.</p>
 
 <p><a name="no-useless-matcher-to-be-defined"></a></p>
 
-<h3><a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-useless-matcher-to-be-defined.md"><code>no-useless-matcher-to-be-defined</code></a></h3>
+<h3><a href="#no-useless-matcher-to-be-defined">#</a> <a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-useless-matcher-to-be-defined.md"><code>no-useless-matcher-to-be-defined</code></a></h3>
 
 <p>This rule disallows using <code>expect(...).toBeDefined()</code> matcher when it is obvious that a variable is always defined.</p>
 
@@ -243,7 +243,7 @@ expect(userCacheKeys).toBeDefined();
 
 <p><a name="no-useless-matcher-to-be-null"></a></p>
 
-<h3><a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-useless-matcher-to-be-null.md"><code>no-useless-matcher-to-be-null</code></a></h3>
+<h3><a href="#no-useless-matcher-to-be-null">#</a> <a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-useless-matcher-to-be-null.md"><code>no-useless-matcher-to-be-null</code></a></h3>
 
 <p>Similar rule to the previous one, this rule complains where <code>not.toBeNull()</code> is used when it shouldn't:</p>
 
@@ -256,7 +256,7 @@ expect(user).not.toBeNull();
 
 <p><a name="no-mixed-expectation-groups"></a></p>
 
-<h3><a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-mixed-expectation-groups.md"><code>no-mixed-expectation-groups</code></a></h3>
+<h3><a href="#no-mixed-expectation-groups">#</a> <a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-mixed-expectation-groups.md"><code>no-mixed-expectation-groups</code></a></h3>
 
 <p>This rule reports an error if expectations for different variables are mixed with each other.</p>
 
@@ -289,7 +289,7 @@ expect(entity).toMatchObject({...});
 
 <p><a name="no-long-arrays-in-test-each"></a></p>
 
-<h3><a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-long-arrays-in-test-each.md"><code>no-long-arrays-in-test-each</code></a></h3>
+<h3><a href="#no-long-arrays-in-test-each">#</a> <a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-long-arrays-in-test-each.md"><code>no-long-arrays-in-test-each</code></a></h3>
 
 <p>This rule disallows the usage of long arrays in <code>test.each()</code> calls.</p>
 
@@ -333,7 +333,7 @@ expect(entity).toMatchObject({...});
 
 <p>Consider extracting such long arrays to a separate files with for example <code>.data.ts</code> postfix.</p>
 
-<p>The following code way better:</p>
+<p>The following code is much better:</p>
 
 <pre><code class="language-ts">// some-service.data.ts
 export type TestCase = Readonly&lt;{
@@ -385,7 +385,7 @@ export const testCases: TestCase[] = [
 
 <p><a name="add-power-to-eslint-rules-with-typescript"></a></p>
 
-<h2>Add more power to your ESLint rules with TypeScript</h2>
+<h2><a href="#add-power-to-eslint-rules-with-typescript">#</a> Add more power to your ESLint rules with TypeScript</h2>
 
 <p><a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests"><code>eslint-plugin-proper-tests</code></a> plugin uses TypeScript to provide more accurate results and get the power of TypeScript to understand variables types.</p>
 

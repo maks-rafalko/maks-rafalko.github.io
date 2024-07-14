@@ -93,3 +93,9 @@ Now that you’ve edited your configuration variables and know how to customize 
 # options: dev, staging, prod
 npm run dev
 ```
+
+# Deploy
+
+- `npm run prod`
+- `vendor/bin/jigsaw build production`
+- 

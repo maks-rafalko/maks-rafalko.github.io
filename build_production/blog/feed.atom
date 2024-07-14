@@ -3,7 +3,7 @@
     <title>Maks Rafalko</title>
     <link href="https://maks-rafalko.github.io/blog" />
     <link type="application/atom+xml" rel="self" href="https://maks-rafalko.github.io/blog/feed.atom" />
-    <updated>2024-07-14T12:40:28+00:00</updated>
+    <updated>2024-07-14T22:16:16+00:00</updated>
     <id>https://maks-rafalko.github.io/blog/feed.atom</id>
     <author>
         <name>Maks Rafalko</name>
@@ -61,13 +61,13 @@ Recently I joined a project with many typical......</summary>
 
 <p><a name="open-source-plugin"></a></p>
 
-<h2>Open Source plugin</h2>
+<h2><a href="#open-source-plugin">#</a> Open Source plugin</h2>
 
 <p><a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests"><code>eslint-plugin-proper-tests</code></a> - let's quickly look into some of the rules from this plugin.</p>
 
 <p><a name="no-useless-matcher-to-be-defined"></a></p>
 
-<h3><a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-useless-matcher-to-be-defined.md"><code>no-useless-matcher-to-be-defined</code></a></h3>
+<h3><a href="#no-useless-matcher-to-be-defined">#</a> <a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-useless-matcher-to-be-defined.md"><code>no-useless-matcher-to-be-defined</code></a></h3>
 
 <p>This rule disallows using <code>expect(...).toBeDefined()</code> matcher when it is obvious that a variable is always defined.</p>
 
@@ -140,7 +140,7 @@ expect(userCacheKeys).toBeDefined();
 
 <p><a name="no-useless-matcher-to-be-null"></a></p>
 
-<h3><a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-useless-matcher-to-be-null.md"><code>no-useless-matcher-to-be-null</code></a></h3>
+<h3><a href="#no-useless-matcher-to-be-null">#</a> <a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-useless-matcher-to-be-null.md"><code>no-useless-matcher-to-be-null</code></a></h3>
 
 <p>Similar rule to the previous one, this rule complains where <code>not.toBeNull()</code> is used when it shouldn't:</p>
 
@@ -153,7 +153,7 @@ expect(user).not.toBeNull();
 
 <p><a name="no-mixed-expectation-groups"></a></p>
 
-<h3><a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-mixed-expectation-groups.md"><code>no-mixed-expectation-groups</code></a></h3>
+<h3><a href="#no-mixed-expectation-groups">#</a> <a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-mixed-expectation-groups.md"><code>no-mixed-expectation-groups</code></a></h3>
 
 <p>This rule reports an error if expectations for different variables are mixed with each other.</p>
 
@@ -186,7 +186,7 @@ expect(entity).toMatchObject({...});
 
 <p><a name="no-long-arrays-in-test-each"></a></p>
 
-<h3><a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-long-arrays-in-test-each.md"><code>no-long-arrays-in-test-each</code></a></h3>
+<h3><a href="#no-long-arrays-in-test-each">#</a> <a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-long-arrays-in-test-each.md"><code>no-long-arrays-in-test-each</code></a></h3>
 
 <p>This rule disallows the usage of long arrays in <code>test.each()</code> calls.</p>
 
@@ -230,7 +230,7 @@ expect(entity).toMatchObject({...});
 
 <p>Consider extracting such long arrays to a separate files with for example <code>.data.ts</code> postfix.</p>
 
-<p>The following code way better:</p>
+<p>The following code is much better:</p>
 
 <pre><code class="language-ts">// some-service.data.ts
 export type TestCase = Readonly&lt;{
@@ -282,7 +282,7 @@ export const testCases: TestCase[] = [
 
 <p><a name="add-power-to-eslint-rules-with-typescript"></a></p>
 
-<h2>Add more power to your ESLint rules with TypeScript</h2>
+<h2><a href="#add-power-to-eslint-rules-with-typescript">#</a> Add more power to your ESLint rules with TypeScript</h2>
 
 <p><a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests"><code>eslint-plugin-proper-tests</code></a> plugin uses TypeScript to provide more accurate results and get the power of TypeScript to understand variables types.</p>
 
