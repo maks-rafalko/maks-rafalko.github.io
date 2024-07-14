@@ -14,7 +14,7 @@
         Twitter
     </a>
 
-    <a title="{{ $page->siteName }} Github" href="https://github.com/maks-rafalko"
+    <a title="{{ $page->siteName }} Github" target="_blank" href="https://github.com/maks-rafalko"
         class="ml-6 text-gray-700 hover:text-blue-600">
         GitHub
     </a>
