@@ -48,7 +48,7 @@ As an OSS contributor, I understand that creating new libs/repos is not always a
 Ok, let's get back to the rule. Here are a couple of real-life examples of bad code:
 
 ```ts
-const response = await request.post(`/api/some-resource`);
+const response = await request.post('/api/some-resource');
 
 expect(response).toBeDefined();
 expect(response.status).toBe(200);
@@ -335,6 +335,8 @@ const isTypeFlagSet = (type: ts.Type, flagsToCheck: ts.TypeFlags): boolean => {
 > Look to the final code [here](https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/4d7a4a2b9d8ff466c0acb14f79746c6eae5ab9eb/src/custom-rules/no-useless-matcher-to-be-defined.ts#L38-L49)
 
 This is how you can use TypeScript types to improve your ESLint rules and make them more accurate. Possibilities are endless!
+
+I encourage you to try these rules in your projects and see how they can improve the quality of your tests.
 
 If you like this plugin and the work I'm doing, consider [giving it a Star on GitHub](https://github.com/maks-rafalko/eslint-plugin-proper-tests/).
 
