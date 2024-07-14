@@ -4,13 +4,18 @@
         Blog
     </a>
 
-{{--    <a title="{{ $page->siteName }} About" href="/about"--}}
-{{--        class="ml-6 text-gray-700 hover:text-blue-600 {{ $page->isActive('/about') ? 'active text-blue-600' : '' }}">--}}
-{{--        About--}}
-{{--    </a>--}}
+    <a title="{{ $page->siteName }} About" href="/about"
+        class="ml-6 text-gray-700 hover:text-blue-600 {{ $page->isActive('/about') ? 'active text-blue-600' : '' }}">
+        About
+    </a>
 
     <a title="{{ $page->siteName }} Twitter" href="https://twitter.com/maks_rafalko"
         class="ml-6 text-gray-700 hover:text-blue-600">
         Twitter
+    </a>
+
+    <a title="{{ $page->siteName }} Github" href="https://github.com/maks-rafalko"
+        class="ml-6 text-gray-700 hover:text-blue-600">
+        GitHub
     </a>
 </nav>
