@@ -101,8 +101,7 @@
 </nav>
 
         <main role="main" class="flex-auto w-full container max-w-4xl mx-auto py-16 px-6">
-                        <img src="https://eslint.org/assets/images/logo/eslint-logo-color.svg" alt="ESLint plugin for writing proper tests cover image" class="mb-2">
-    
+                
     <h1 class="leading-none mb-2">ESLint plugin for writing proper tests</h1>
 
     <p class="text-gray-700 text-xl md:mt-0">July 14, 2024  •  <a class="text-gray-700 text-xl font-normal" style="text-decoration: underline dashed" target="_blank" href="https://github.com/maks-rafalko/maks-rafalko.github.io/blob/main/source/_posts/eslint-plugin-proper-tests.md">Edit this Post</a></p>
@@ -113,10 +112,20 @@
                 class="inline-block bg-gray-300 hover:bg-blue-200 leading-loose tracking-wide text-gray-800 uppercase text-xs font-semibold rounded mr-4 px-3 pt-px"
             >js</a>
                     <a
+                href="/blog/categories/nodejs"
+                title="View posts in nodejs"
+                class="inline-block bg-gray-300 hover:bg-blue-200 leading-loose tracking-wide text-gray-800 uppercase text-xs font-semibold rounded mr-4 px-3 pt-px"
+            >nodejs</a>
+                    <a
                 href="/blog/categories/eslint"
                 title="View posts in eslint"
                 class="inline-block bg-gray-300 hover:bg-blue-200 leading-loose tracking-wide text-gray-800 uppercase text-xs font-semibold rounded mr-4 px-3 pt-px"
             >eslint</a>
+                    <a
+                href="/blog/categories/jest"
+                title="View posts in jest"
+                class="inline-block bg-gray-300 hover:bg-blue-200 leading-loose tracking-wide text-gray-800 uppercase text-xs font-semibold rounded mr-4 px-3 pt-px"
+            >jest</a>
                     <a
                 href="/blog/categories/tests"
                 title="View posts in tests"
@@ -124,7 +133,347 @@
             >tests</a>
             
     <div class="border-b border-blue-200 mb-10 pb-4" v-pre>
-        <p><code>eslint-plugin-proper-tests</code></p>
+        <p><img src="https://eslint.org/assets/images/logo/eslint-logo-color.svg" alt="eslint cover"></p>
+
+<ul>
+<li><a href="#open-source-plugin">Open Source plugin</a>
+
+<ul>
+<li><a href="#no-useless-matcher-to-be-defined">no-useless-matcher-to-be-defined</a></li>
+<li><a href="#no-useless-matcher-to-be-null">no-useless-matcher-to-be-null</a></li>
+<li><a href="#no-mixed-expectation-groups">no-mixed-expectation-groups</a></li>
+<li><a href="#no-long-arrays-in-test-each">no-long-arrays-in-test-each</a></li>
+</ul></li>
+<li><a href="#add-power-to-eslint-rules-with-typescript">Add more power to your ESLint rules with TypeScript</a></li>
+</ul>
+
+<p>Recently I joined a project with many typical microservices, where each one is a standalone NestJS application with many unit and e2e tests.</p>
+
+<p>The good thing - developers write really many tests there, covering all the API endpoints, validation, transactions, etc.</p>
+
+<p>The bad thing - tests were looking messy, so we decided to</p>
+
+<ul>
+<li>fix the most popular mistakes and spread best practices across all developers of different microservices</li>
+<li>somehow control it, to not allow writing messy tests in the future</li>
+</ul>
+
+<p>To achieve the second point in an automatic way, it was decided to write custom ESLint Rules so that developers immediately notified right in their IDE when tests look bad, and which is more important - build is failed if our best practices are not followed.</p>
+
+<p>Below, I would like to show the most interesting rules that I've created and then applied to this work project.</p>
+
+<p><a name="open-source-plugin"></a></p>
+
+<h2>Open Source plugin</h2>
+
+<p><a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests"><code>eslint-plugin-proper-tests</code></a> - let's quickly look into some of the rules from this plugin.</p>
+
+<p><a name="no-useless-matcher-to-be-defined"></a></p>
+
+<h3><a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-useless-matcher-to-be-defined.md"><code>no-useless-matcher-to-be-defined</code></a></h3>
+
+<p>This rule disallows using <code>expect(...).toBeDefined()</code> matcher when it is obvious that a variable is always defined.</p>
+
+<p>I was surprised how many times I saw this in the codebases. And I was pretty sure that there should be a rule for this, but seems like not.</p>
+
+<p>As an OSS contributor, I understand that creating new libs/repos is not always a good idea, so I tried to propose this rule for <a href="https://github.com/jest-community/eslint-plugin-jest"><code>eslint-plugin-jest</code></a> (btw, it's awesome!), but for some reason didn't even get a response (and at the time of writing of this post, this is still the case).</p>
+
+<blockquote>
+  <p>See original proposal <a href="https://github.com/jest-community/eslint-plugin-jest/issues/1616"><code>eslint-plugin-jest#1616</code></a></p>
+</blockquote>
+
+<p>Ok, let's get back to the rule. Here are a couple of real-life examples of bad code:</p>
+
+<pre><code class="language-ts">const response = await request.post(`/api/some-resource`);
+
+expect(response).toBeDefined();
+expect(response.status).toBe(200);
+</code></pre>
+
+<p>What's the problem with this code? The problem is that <code>expect(response).toBeDefined();</code> always passes and is really the useless check here.</p>
+
+<p>The type of <code>response</code> variable is <code>Response</code>. It physically can not be <code>undefined</code>. Does it make sense to check it with <code>.toBeDefined()</code>? No.</p>
+
+<p>Reported error:</p>
+
+<pre><code class="language-bash">Type of "response" variable is "Response", it can not be undefined. It is useless to check it with `.toBeDefined()` matcher.
+</code></pre>
+
+<p>So let's just remove this line:</p>
+
+<pre><code class="language-diff">const response = await request.post(`/api/some-resource`);
+
+- expect(response).toBeDefined();
+expect(response.status).toBe(200);
+</code></pre>
+
+<p>Another example that is hard to spot looking into the code for the first time:</p>
+
+<pre><code class="language-ts">const response = await request.post(`/api/some-resource`);
+
+// ...
+
+const userCacheKeys = await redisClient.keys('USER_*');
+
+expect(userCacheKeys).toBeDefined();
+</code></pre>
+
+<p>The purpose of this test was to check that after calling API endpoint, user's data is cached to Redis. But does it really test anything?</p>
+
+<p>Absolutely no, because the type of <code>userCacheKeys</code> is <code>string[]</code>. So <code>redisClient.keys()</code> <strong>always returns an array</strong>, which is always "defined".</p>
+
+<p>Again, we have expectation that always passes, and which is worse, we don't test anything. Whether Redis has these keys or not - tests don't really catch it.</p>
+
+<p>The proper change for this case is the following:</p>
+
+<pre><code class="language-diff">const userCacheKeys = await redisClient.keys('USER_*');
+
+- expect(userCacheKeys).toBeDefined();
+
++ const cacheValues = await redisClient.mGet(userCacheKeys);
++
++ expect(cacheValues).toEqual(['cache-value-1', 'cache-value-2']);
+</code></pre>
+
+<p>So, now we check the number of keys and exact values returned from Redis. When at some point developers will do a change that will lead to adding new keys or removing keys, such test will catch it, which is what we want.</p>
+
+<blockquote>
+  <p><a href="#add-power-to-eslint-rules-with-typescript">Read below</a> to understand how to use TypeScript types to add more power to your ESLint rules</p>
+</blockquote>
+
+<p><a name="no-useless-matcher-to-be-null"></a></p>
+
+<h3><a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-useless-matcher-to-be-null.md"><code>no-useless-matcher-to-be-null</code></a></h3>
+
+<p>Similar rule to the previous one, this rule complains where <code>not.toBeNull()</code> is used when it shouldn't:</p>
+
+<pre><code class="language-ts">const user = repository.findByIdOrThrow(123); // return type is `User`
+
+expect(user).not.toBeNull();
+</code></pre>
+
+<p>From types point of view, <code>user</code> can not be <code>null</code>, so this check is useless and will be reported by this ESLint rule. Just remove it and replace with a proper expectation.</p>
+
+<p><a name="no-mixed-expectation-groups"></a></p>
+
+<h3><a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-mixed-expectation-groups.md"><code>no-mixed-expectation-groups</code></a></h3>
+
+<p>This rule reports an error if expectations for different variables are mixed with each other.</p>
+
+<p>Here is a very simplified example of a bad test:</p>
+
+<pre><code class="language-ts">const response = await request.post(`/api/some-resource`);
+
+const entity = await repository.getById(123);
+
+expect(response.status).toBe(201);
+expect(entity).toMatchObject({...});
+expect(response.headers).toMatchObject({...});
+expect(response.body).toMatchObject({...});
+</code></pre>
+
+<p>In real life when you have multiple lines the things look much worse. So what is the problem here? The problem is that we are checking different variables, mixing them with each other.</p>
+
+<p>Instead, it's better to have "groups" of expectations. The same code can be rewritten like:</p>
+
+<pre><code class="language-ts">const response = await request.post(`/api/some-resource`);
+
+expect(response.status).toBe(201);
+expect(response.headers).toMatchObject({...});
+expect(response.body).toMatchObject({...});
+
+const entity = await repository.getById(123);
+
+expect(entity).toMatchObject({...});
+</code></pre>
+
+<p><a name="no-long-arrays-in-test-each"></a></p>
+
+<h3><a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/main/docs/rules/no-long-arrays-in-test-each.md"><code>no-long-arrays-in-test-each</code></a></h3>
+
+<p>This rule disallows the usage of long arrays in <code>test.each()</code> calls.</p>
+
+<p>The following code is bad:</p>
+
+<pre><code class="language-ts">test.each([
+  {
+    description: 'test case name #1',
+    inputValue: 'a',
+    expectedOutput: 'aa',
+  },
+  {
+    description: 'test case name #2',
+    inputValue: 'b',
+    expectedOutput: 'bb',
+  },
+  {
+    description: 'test case name #3',
+    inputValue: 'c',
+    expectedOutput: 'cc',
+  },
+  {
+    description: 'test case name #4',
+    inputValue: 'd',
+    expectedOutput: 'dd',
+  },
+  {
+    description: 'test case name #5',
+    inputValue: 'e',
+    expectedOutput: 'ee',
+  },
+  {
+    description: 'test case name #6',
+    inputValue: 'f',
+    expectedOutput: 'ff',
+  },
+])('$description', ({ clientCountry, expectedPaymentMethod, processorName }) =&gt; {
+  // ...
+});
+</code></pre>
+
+<p>Consider extracting such long arrays to a separate files with for example <code>.data.ts</code> postfix.</p>
+
+<p>The following code way better:</p>
+
+<pre><code class="language-ts">// some-service.data.ts
+export type TestCase = Readonly&lt;{
+  description: string;
+  inputValue: string;
+  expectedOutput: string;
+}&gt;;
+
+export const testCases: TestCase[] = [
+  {
+    description: 'test case name #1',
+    inputValue: 'a',
+    expectedOutput: 'aa',
+  },
+  {
+    description: 'test case name #2',
+    inputValue: 'b',
+    expectedOutput: 'bb',
+  },
+  {
+    description: 'test case name #3',
+    inputValue: 'c',
+    expectedOutput: 'cc',
+  },
+  {
+    description: 'test case name #4',
+    inputValue: 'd',
+    expectedOutput: 'dd',
+  },
+  {
+    description: 'test case name #5',
+    inputValue: 'e',
+    expectedOutput: 'ee',
+  },
+  {
+    description: 'test case name #6',
+    inputValue: 'f',
+    expectedOutput: 'ff',
+  },
+];
+</code></pre>
+
+<p>and now test is more readable:</p>
+
+<pre><code class="language-ts">test.each(testCases)('$description', ({ inputValue, expectedOutput }: TestCase) =&gt; {
+  // ...
+});
+</code></pre>
+
+<p><a name="add-power-to-eslint-rules-with-typescript"></a></p>
+
+<h2>Add more power to your ESLint rules with TypeScript</h2>
+
+<p><a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests"><code>eslint-plugin-proper-tests</code></a> plugin uses TypeScript to provide more accurate results and get the power of TypeScript to understand variables types.</p>
+
+<p>To enable it properly, you need to <a href="https://typescript-eslint.io/getting-started/typed-linting">configure ESLint to work with TypeScript</a>:</p>
+
+<pre><code class="language-ts">// .eslintrc.js
+
+module.exports = {
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": true,
+    "tsconfigRootDir": __dirname,
+  }
+}
+</code></pre>
+
+<p>Now, let's quickly look into how to use TypeScript types to improve your ESLint rules with an example of <a href="#no-useless-matcher-to-be-defined"><code>no-useless-matcher-to-be-defined</code></a> rule.</p>
+
+<blockquote>
+  <p>Read official docs on how to use <code>typescript-eslint</code> for typed rules <a href="https://typescript-eslint.io/developers/custom-rules#typed-rules">here</a></p>
+</blockquote>
+
+<p>In our rule we need to use <code>typeChecker</code> service:</p>
+
+<pre><code class="language-ts">const services = ESLintUtils.getParserServices(context);
+const typeChecker = services.program.getTypeChecker();
+</code></pre>
+
+<p><a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/4d7a4a2b9d8ff466c0acb14f79746c6eae5ab9eb/src/custom-rules/no-useless-matcher-to-be-defined.ts#L11C5-L12C59">>> Look into the code</a></p>
+
+<p>Then, to understand if a variable is always defined, we need to:</p>
+
+<ul>
+<li>get the type of the variable</li>
+<li>check if it can be undefined</li>
+</ul>
+
+<p>To get the declaration type of variable, we use the following code:</p>
+
+<pre><code class="language-ts">// argumentNode - is a node of the variable inside expect(variable) call
+
+const symbol = services.getSymbolAtLocation(argumentNode);
+
+const declarationType = typeChecker.getTypeOfSymbolAtLocation(symbol!, symbol!.valueDeclaration!);
+</code></pre>
+
+<p>It's a bit tricky, but the good thing you shouldn't do it often. What we did is got the declaration type of the variable.</p>
+
+<p>Now, we need to check if it "contains" <code>undefined</code> sub-type inside (like <code>string | undefined</code>).</p>
+
+<p>For this, I use <code>isTypeFlagSet</code> helper:</p>
+
+<pre><code class="language-ts">const isVariableCanBeUndefined = isTypeFlagSet(
+  declarationType,
+  ts.TypeFlags.Undefined
+);
+</code></pre>
+
+<p>which under the hood gets all the union types of a variable and by bit mask checks if <code>undefined</code> is there:</p>
+
+<pre><code class="language-ts">const getTypeFlags = (type: ts.Type): ts.TypeFlags =&gt; {
+  let flags: ts.TypeFlags = 0;
+
+  for (const t of tsutils.unionTypeParts(type)) {
+    flags |= t.flags;
+  }
+
+  return flags;
+};
+
+const isTypeFlagSet = (type: ts.Type, flagsToCheck: ts.TypeFlags): boolean =&gt; {
+  const flags = getTypeFlags(type);
+
+  return (flags &amp; flagsToCheck) !== 0;
+};
+</code></pre>
+
+<blockquote>
+  <p>Look to the final code <a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests/blob/4d7a4a2b9d8ff466c0acb14f79746c6eae5ab9eb/src/custom-rules/no-useless-matcher-to-be-defined.ts#L38-L49">here</a></p>
+</blockquote>
+
+<p>This is how you can use TypeScript types to improve your ESLint rules and make them more accurate. Possibilities are endless!</p>
+
+<p>If you like this plugin and the work I'm doing, consider <a href="https://github.com/maks-rafalko/eslint-plugin-proper-tests/">giving it a Star on GitHub</a>.</p>
+
+<p class="my-12 text-center">
+    <b>Find this interesting?</b> Let's continue the conversation on <a href="https://x.com/maks_rafalko/status/1804868289732002283" rel="nofollow">Twitter</a>.
+</p>
     </div>
 
     <nav class="flex justify-between text-sm md:text-base">
@@ -155,7 +504,7 @@
             </ul>
         </footer>
 
-        <script src="/assets/build/js/main.js?id=d62fc990a9d45c0e039e"></script>
+        <script src="/assets/build/js/main.js?id=da2573bc65b1d1cb157b"></script>
 
         <script>
     const navMenu = {
