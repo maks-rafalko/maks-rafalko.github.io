@@ -5,6 +5,7 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
 deploy:
+	nvm use v16
 	npm run prod
 	vendor/bin/jigsaw build production
 	git add build_production && git commit -m "Build for deploy"
