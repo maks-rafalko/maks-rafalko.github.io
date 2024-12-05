@@ -7,6 +7,8 @@ categories: [php, symfony, tests, linux, mac, windows, docker, orbstack]
 description: Comparing Linux, Windows, Mac performance with Symfony tests suite.
 ---
 
+**UPD (06.12.2024)**: Tested on Docker for Mac in addition to OrbStack. 
+
 Currently, I have different laptops at home and can compare how fast different test suites can be on 3 Operation Systems:
 
 - Windows
@@ -80,9 +82,9 @@ Let's sum it up correctly: if you configure Windows to store the source code on 
 
 Now, let's compare this tests suite with MacBook Pro 14" with M3 PRO processor and 36Gb RAM.
 
-Instead of Docker, I tried to use [OrbStack](https://orbstack.dev/), which is a drop-in replacement.
+In addition to Docker for Mac, I tried to use [OrbStack](https://orbstack.dev/), which is a drop-in replacement.
 
-Run the command
+With OrbStack, run the command
 
 ```bash
 docker compose exec php vendor/bin/paratest -p4 --runner=WrapperRunner
@@ -106,6 +108,21 @@ It's 2 times faster than on my Dell laptop, both on Windows and Linux 😳
 When it takes around 11 seconds on Windows and Linux, it takes only 5 seconds to run 901 functional tests on Mac. Nice results!
 
 Back in 2020, my experiments showed that Docker on Linux was extremely faster than on MacOS (2-3 times faster), but now, with the new M processor, it looks like it's changed. I will keep an eye on it, but very impressed by the results.
+
+**UPD (06.12.2024)**: I tested the same test suite on Docker for Mac and got the following results:
+
+```bash
+[...]
+............................................................... 819 / 901 ( 90%)
+............................................................... 882 / 901 ( 97%)
+...................                                             901 / 901 (100%)
+
+Time: 00:09.506, Memory: 26.00 MB
+
+OK (901 tests, 3914 assertions)
+```
+
+So it's a bit slower than OrbStack, but still faster than on Windows and Linux.
 
 Let's do one more comparison with [Infection](https://infection.github.io/guide/)'s tests suite: 4000+ unit tests executed in 1 thread using PHPUnit:
 
