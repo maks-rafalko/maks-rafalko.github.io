@@ -3,7 +3,7 @@
     <title>Maks Rafalko</title>
     <link href="https://maks-rafalko.github.io/blog" />
     <link type="application/atom+xml" rel="self" href="https://maks-rafalko.github.io/blog/feed.atom" />
-    <updated>2024-07-14T22:42:23+00:00</updated>
+    <updated>2024-12-05T23:46:59+00:00</updated>
     <id>https://maks-rafalko.github.io/blog/feed.atom</id>
     <author>
         <name>Maks Rafalko</name>
@@ -384,7 +384,9 @@ const isTypeFlagSet = (type: ts.Type, flagsToCheck: ts.TypeFlags): boolean =&gt;
     <author>
         <name>Maks Rafalko</name>
     </author>
-    <summary type="html">Currently, I have different laptops at home and can compare how fast different test suites can be on 3 Operation Systems:
+    <summary type="html">UPD (06.12.2024): Tested on Docker for Mac in addition to OrbStack.
+
+Currently, I have different laptops at home and can compare how fast different test suites can be on 3 Operation Systems:
 
 
 Windows
@@ -392,9 +394,11 @@ Arch Linux (Manjaro)
 MacOS
 
 
-This is not a detailed review of processors and other hardware, rather just my experiments......</summary>
+This is not a detailed......</summary>
     <content type="html"><![CDATA[
-        <p>Currently, I have different laptops at home and can compare how fast different test suites can be on 3 Operation Systems:</p>
+        <p><strong>UPD (06.12.2024)</strong>: Tested on Docker for Mac in addition to OrbStack.</p>
+
+<p>Currently, I have different laptops at home and can compare how fast different test suites can be on 3 Operation Systems:</p>
 
 <ul>
 <li>Windows</li>
@@ -469,9 +473,9 @@ OK (901 tests, 3914 assertions)
 
 <p>Now, let's compare this tests suite with MacBook Pro 14" with M3 PRO processor and 36Gb RAM.</p>
 
-<p>Instead of Docker, I tried to use <a href="https://orbstack.dev/">OrbStack</a>, which is a drop-in replacement.</p>
+<p>In addition to Docker for Mac, I tried to use <a href="https://orbstack.dev/">OrbStack</a>, which is a drop-in replacement.</p>
 
-<p>Run the command</p>
+<p>With OrbStack, run the command</p>
 
 <pre><code class="language-bash">docker compose exec php vendor/bin/paratest -p4 --runner=WrapperRunner
 </code></pre>
@@ -493,6 +497,20 @@ OK (901 tests, 3914 assertions)
 <p>When it takes around 11 seconds on Windows and Linux, it takes only 5 seconds to run 901 functional tests on Mac. Nice results!</p>
 
 <p>Back in 2020, my experiments showed that Docker on Linux was extremely faster than on MacOS (2-3 times faster), but now, with the new M processor, it looks like it's changed. I will keep an eye on it, but very impressed by the results.</p>
+
+<p><strong>UPD (06.12.2024)</strong>: I tested the same test suite on Docker for Mac and got the following results:</p>
+
+<pre><code class="language-bash">[...]
+............................................................... 819 / 901 ( 90%)
+............................................................... 882 / 901 ( 97%)
+...................                                             901 / 901 (100%)
+
+Time: 00:09.506, Memory: 26.00 MB
+
+OK (901 tests, 3914 assertions)
+</code></pre>
+
+<p>So it's a bit slower than OrbStack, but still faster than on Windows and Linux.</p>
 
 <p>Let's do one more comparison with <a href="https://infection.github.io/guide/">Infection</a>'s tests suite: 4000+ unit tests executed in 1 thread using PHPUnit:</p>
 
